@@ -54,8 +54,13 @@ function UploadPage() {
           'Content-Type': 'multipart/form-data'
         }
       });
+      console.log('Upload response:', response.data); // Debug response
       setResult(response.data);
       setError('');
+      if (response.data.result_image_base64 && file.type.startsWith('image/')) {
+        console.log('Setting preview to base64 image');
+        setPreview(`data:image/jpeg;base64,${response.data.result_image_base64}`);
+      }
     } catch (err) {
       setError(err.response?.data?.detail || 'Upload failed. Please try again.');
       setResult(null);
@@ -69,6 +74,7 @@ function UploadPage() {
       const img = new Image();
       img.src = preview;
       img.onload = () => {
+        console.log('Drawing image on canvas, size:', img.width, img.height);
         canvas.width = img.width;
         canvas.height = img.height;
         ctx.drawImage(img, 0, 0);
@@ -81,6 +87,9 @@ function UploadPage() {
           ctx.fillStyle = 'red';
           ctx.fillText(`${label} (${(confidence * 100).toFixed(2)}%)`, x_min, y_min - 5);
         });
+      };
+      img.onerror = () => {
+        console.error('Failed to load image for canvas');
       };
     }
   }, [result, preview, file]);
@@ -113,7 +122,7 @@ function UploadPage() {
             <Typography variant="h6">Preview</Typography>
             {file?.type.startsWith('image/') ? (
               <Box sx={{ position: 'relative', display: 'inline-block' }}>
-                <canvas ref={canvasRef} style={{ maxWidth: '100%', maxHeight: '300px' }} />
+                <canvas ref={canvasRef} style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '4px' }} />
               </Box>
             ) : (
               <video src={preview} controls style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '4px' }} />

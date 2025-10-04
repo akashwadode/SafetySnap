@@ -1,11 +1,11 @@
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
+import { auth } from '../firebase';
+import useUserData from '../hooks/useUserData';
+import { AppBar, Toolbar, Typography, Button, Box, Avatar } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 
 function Navbar() {
-  const [user] = useAuthState(auth);
+  const { user, username, loading } = useUserData();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -20,7 +20,7 @@ function Navbar() {
           <Link to="/" style={{ textDecoration: 'none', color: 'white' }}>
             <Box display="flex" alignItems="center">
               <HomeIcon sx={{ mr: 1 }} />
-              PPE Detector
+              The Guardian Eye
             </Box>
           </Link>
         </Typography>
@@ -28,10 +28,17 @@ function Navbar() {
           <Button color="inherit" component={Link} to="/">
             Home
           </Button>
-          {user ? (
-            <Button color="inherit" onClick={handleLogout}>
-              Logout
-            </Button>
+          {user && !loading ? (
+            <>
+              <Box display="flex" alignItems="center" sx={{ mr: 2 }}>
+                <Avatar sx={{ bgcolor: 'white', color: '#1976d2', mr: 1 }}>
+                </Avatar>
+                <Typography variant="body1">{username}</Typography>
+              </Box>
+              <Button color="inherit" onClick={handleLogout}>
+                Logout
+              </Button>
+            </>
           ) : (
             <>
               <Button color="inherit" component={Link} to="/login">

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
@@ -11,6 +11,7 @@ function UploadPage() {
   const [preview, setPreview] = useState(null);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
+  const canvasRef = useRef(null);
   const navigate = useNavigate();
 
   const onDrop = useCallback((acceptedFiles) => {
@@ -61,6 +62,29 @@ function UploadPage() {
     }
   };
 
+  useEffect(() => {
+    if (result && preview && file?.type.startsWith('image/')) {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      img.src = preview;
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 2;
+        ctx.font = '16px Arial';
+        result.detections.forEach(({ label, confidence, bbox }) => {
+          const [x_min, y_min, x_max, y_max] = bbox;
+          ctx.strokeRect(x_min, y_min, x_max - x_min, y_max - y_min);
+          ctx.fillStyle = 'red';
+          ctx.fillText(`${label} (${(confidence * 100).toFixed(2)}%)`, x_min, y_min - 5);
+        });
+      };
+    }
+  }, [result, preview, file]);
+
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Typography variant="h4" gutterBottom>
@@ -87,8 +111,10 @@ function UploadPage() {
         {preview && (
           <Box sx={{ mt: 4 }}>
             <Typography variant="h6">Preview</Typography>
-            {file.type.startsWith('image/') ? (
-              <img src={preview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '4px' }} />
+            {file?.type.startsWith('image/') ? (
+              <Box sx={{ position: 'relative', display: 'inline-block' }}>
+                <canvas ref={canvasRef} style={{ maxWidth: '100%', maxHeight: '300px' }} />
+              </Box>
             ) : (
               <video src={preview} controls style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '4px' }} />
             )}

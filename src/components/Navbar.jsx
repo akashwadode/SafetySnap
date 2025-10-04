@@ -3,9 +3,10 @@ import { auth } from '../firebase';
 import useUserData from '../hooks/useUserData';
 import { AppBar, Toolbar, Typography, Button, Box, Avatar } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 function Navbar() {
-  const { user, username, loading } = useUserData();
+  const { user, username, loading, error } = useUserData();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -28,12 +29,18 @@ function Navbar() {
           <Button color="inherit" component={Link} to="/">
             Home
           </Button>
+          {user && !loading && (
+            <Button color="inherit" component={Link} to="/upload">
+              Upload
+            </Button>
+          )}
           {user && !loading ? (
             <>
               <Box display="flex" alignItems="center" sx={{ mr: 2 }}>
                 <Avatar sx={{ bgcolor: 'white', color: '#1976d2', mr: 1 }}>
+                  <AccountCircleIcon />
                 </Avatar>
-                <Typography variant="body1">{username}</Typography>
+                <Typography variant="body1">{username || 'Guest'}</Typography>
               </Box>
               <Button color="inherit" onClick={handleLogout}>
                 Logout

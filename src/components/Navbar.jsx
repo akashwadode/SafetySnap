@@ -1,10 +1,11 @@
-import { Box, Flex, Button, Heading, Link as ChakraLink } from '@chakra-ui/react';
-import { Link, useNavigate } from 'react-router-dom';
-import { auth } from '../firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '../firebase';
+import { useNavigate, Link } from 'react-router-dom';
+import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
+import HomeIcon from '@mui/icons-material/Home';
 
 function Navbar() {
-  const [user] = useAuthState(auth); // Check if user is logged in
+  const [user] = useAuthState(auth);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -13,34 +14,37 @@ function Navbar() {
   };
 
   return (
-    <Box bg="blue.600" p={4} color="white">
-      <Flex maxW="1200px" mx="auto" align="center" justify="space-between">
-        <Heading size="md">
-          <ChakraLink as={Link} to="/" _hover={{ textDecoration: 'none' }}>
-            PPE Detector
-          </ChakraLink>
-        </Heading>
-        <Flex gap={4}>
-          <ChakraLink as={Link} to="/" _hover={{ textDecoration: 'underline' }}>
+    <AppBar position="static" sx={{ bgcolor: '#1976d2' }}>
+      <Toolbar>
+        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          <Link to="/" style={{ textDecoration: 'none', color: 'white' }}>
+            <Box display="flex" alignItems="center">
+              <HomeIcon sx={{ mr: 1 }} />
+              PPE Detector
+            </Box>
+          </Link>
+        </Typography>
+        <Box>
+          <Button color="inherit" component={Link} to="/">
             Home
-          </ChakraLink>
+          </Button>
           {user ? (
-            <Button colorScheme="red" onClick={handleLogout}>
+            <Button color="inherit" onClick={handleLogout}>
               Logout
             </Button>
           ) : (
             <>
-              <ChakraLink as={Link} to="/login" _hover={{ textDecoration: 'underline' }}>
+              <Button color="inherit" component={Link} to="/login">
                 Login
-              </ChakraLink>
-              <ChakraLink as={Link} to="/signup" _hover={{ textDecoration: 'underline' }}>
+              </Button>
+              <Button color="inherit" component={Link} to="/signup">
                 Signup
-              </ChakraLink>
+              </Button>
             </>
           )}
-        </Flex>
-      </Flex>
-    </Box>
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 }
 

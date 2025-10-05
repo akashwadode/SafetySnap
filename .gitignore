@@ -25,9 +25,3 @@ dist-ssr
 
 firebase-adminsdk.json
 
-venv/
-*.pyc
-__pycache__/
-firebase-adminsdk.json
-uploads.db
-temp_uploads/

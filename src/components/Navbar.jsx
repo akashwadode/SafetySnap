@@ -30,9 +30,14 @@ function Navbar() {
             Home
           </Button>
           {user && !loading && (
-            <Button color="inherit" component={Link} to="/upload">
-              Upload
-            </Button>
+            <>
+              <Button color="inherit" component={Link} to="/upload">
+                Upload
+              </Button>
+              <Button color="inherit" component={Link} to="/history">
+                History
+              </Button>
+            </>
           )}
           {user && !loading ? (
             <>

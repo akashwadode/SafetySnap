@@ -16,13 +16,13 @@ function UploadPage() {
 
   const onDrop = useCallback((acceptedFiles) => {
     const uploadedFile = acceptedFiles[0];
-    if (uploadedFile && (uploadedFile.type.startsWith('image/') || uploadedFile.type.startsWith('video/'))) {
+    if (uploadedFile && uploadedFile.type.startsWith('image/')) {
       setFile(uploadedFile);
       setPreview(URL.createObjectURL(uploadedFile));
       setError('');
       setResult(null);
     } else {
-      setError('Please upload an image (JPEG/PNG) or video (MP4, AVI).');
+      setError('Please upload an image (JPEG/PNG).');
       setFile(null);
       setPreview(null);
     }
@@ -32,9 +32,7 @@ function UploadPage() {
     onDrop,
     accept: {
       'image/jpeg': ['.jpeg', '.jpg'],
-      'image/png': ['.png'],
-      'video/mp4': ['.mp4'],
-      'video/avi': ['.avi']
+      'image/png': ['.png']
     },
     maxFiles: 1
   });
@@ -54,10 +52,10 @@ function UploadPage() {
           'Content-Type': 'multipart/form-data'
         }
       });
-      console.log('Upload response:', response.data); // Debug response
+      console.log('Upload response:', response.data);
       setResult(response.data);
       setError('');
-      if (response.data.result_image_base64 && file.type.startsWith('image/')) {
+      if (response.data.result_image_base64) {
         console.log('Setting preview to base64 image');
         setPreview(`data:image/jpeg;base64,${response.data.result_image_base64}`);
       }
@@ -68,7 +66,7 @@ function UploadPage() {
   };
 
   useEffect(() => {
-    if (result && preview && file?.type.startsWith('image/')) {
+    if (result && preview) {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
       const img = new Image();
@@ -92,12 +90,12 @@ function UploadPage() {
         console.error('Failed to load image for canvas');
       };
     }
-  }, [result, preview, file]);
+  }, [result, preview]);
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Typography variant="h4" gutterBottom>
-        Upload Image or Video
+        Upload Image
       </Typography>
       <Paper sx={{ p: 4, mb: 4, textAlign: 'center', bgcolor: '#f5f5f5' }}>
         <Box
@@ -113,20 +111,16 @@ function UploadPage() {
           <input {...getInputProps()} />
           <CloudUploadIcon sx={{ fontSize: 48, color: '#1976d2' }} />
           <Typography variant="body1">
-            {isDragActive ? 'Drop the file here' : 'Drag & drop an image or video, or click to select'}
+            {isDragActive ? 'Drop the image here' : 'Drag & drop an image, or click to select'}
           </Typography>
         </Box>
         {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
         {preview && (
           <Box sx={{ mt: 4 }}>
             <Typography variant="h6">Preview</Typography>
-            {file?.type.startsWith('image/') ? (
-              <Box sx={{ position: 'relative', display: 'inline-block' }}>
-                <canvas ref={canvasRef} style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '4px' }} />
-              </Box>
-            ) : (
-              <video src={preview} controls style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '4px' }} />
-            )}
+            <Box sx={{ position: 'relative', display: 'inline-block' }}>
+              <canvas ref={canvasRef} style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '4px' }} />
+            </Box>
           </Box>
         )}
         <Button

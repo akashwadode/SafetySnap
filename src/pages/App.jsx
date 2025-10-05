@@ -6,8 +6,10 @@ import LoginPage from "./LoginPage";
 import SignupPage from "./SignupPage";
 import UploadPage from "./UploadPage";
 import HistoryPage from "./HistoryPage";
+import AnalyticsPage from "./AnalyticsPage";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../firebase";
+import { Analytics } from "@mui/icons-material";
 
 function ProtectedRoute({ children }) {
   const [user, loading] = useAuthState(auth);
@@ -40,6 +42,14 @@ function App() {
           element={
             <ProtectedRoute>
               <UploadPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute>
+              <AnalyticsPage />
             </ProtectedRoute>
           }
         />

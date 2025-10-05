@@ -1,25 +1,44 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { auth } from '../firebase';
-import { Container, Typography, Table, TableBody, TableCell, TableHead, TableRow, Paper, Button, TextField, Box, Pagination, Alert } from '@mui/material';
-import useUserData from '../hooks/useUserData';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { auth } from "../firebase";
+import {
+  Container,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  TextField,
+  Box,
+  Pagination,
+  Alert,
+  Collapse,
+  IconButton,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import useUserData from "../hooks/useUserData";
 
 function HistoryPage() {
   const [history, setHistory] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
   const [perPage] = useState(10);
-  const [filenameFilter, setFilenameFilter] = useState('');
-  const [startDateFilter, setStartDateFilter] = useState('');
-  const [endDateFilter, setEndDateFilter] = useState('');
-  const [error, setError] = useState('');
+  const [filenameFilter, setFilenameFilter] = useState("");
+  const [startDateFilter, setStartDateFilter] = useState("");
+  const [endDateFilter, setEndDateFilter] = useState("");
+  const [error, setError] = useState("");
+  const [expandedRows, setExpandedRows] = useState({});
   const { user, loading } = useUserData();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!user && !loading) {
-      navigate('/login');
+      navigate("/login");
     }
   }, [user, loading, navigate]);
 
@@ -32,15 +51,15 @@ function HistoryPage() {
       if (startDateFilter) params.start_date = startDateFilter;
       if (endDateFilter) params.end_date = endDateFilter;
 
-      const response = await axios.get('http://localhost:8000/history', {
+      const response = await axios.get("http://localhost:8000/history", {
         headers: { Authorization: `Bearer ${token}` },
-        params
+        params,
       });
       setHistory(response.data.uploads);
       setTotalPages(response.data.total_pages);
-      setError('');
+      setError("");
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to fetch history.');
+      setError(err.response?.data?.detail || "Failed to fetch history.");
     }
   };
 
@@ -52,6 +71,13 @@ function HistoryPage() {
     setPage(value);
   };
 
+  const toggleRow = (uploadId) => {
+    setExpandedRows((prev) => ({
+      ...prev,
+      [uploadId]: !prev[uploadId],
+    }));
+  };
+
   if (loading) return <Typography>Loading...</Typography>;
 
   return (
@@ -60,7 +86,7 @@ function HistoryPage() {
         Upload History
       </Typography>
       <Paper sx={{ p: 4, mb: 4 }}>
-        <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
+        <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
           <TextField
             label="Filter by Filename"
             value={filenameFilter}
@@ -86,10 +112,15 @@ function HistoryPage() {
             Apply Filters
           </Button>
         </Box>
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell />
               <TableCell>ID</TableCell>
               <TableCell>Filename</TableCell>
               <TableCell>Upload Time</TableCell>
@@ -98,21 +129,78 @@ function HistoryPage() {
           </TableHead>
           <TableBody>
             {history.map((upload) => (
-              <TableRow key={upload.upload_id}>
-                <TableCell>{upload.upload_id}</TableCell>
-                <TableCell>{upload.filename}</TableCell>
-                <TableCell>{new Date(upload.upload_time).toLocaleString()}</TableCell>
-                <TableCell>
-                  <pre style={{ whiteSpace: 'pre-wrap', maxWidth: '400px' }}>
-                    {JSON.stringify(upload.detections, null, 2)}
-                  </pre>
-                </TableCell>
-              </TableRow>
+              <>
+                <TableRow key={upload.upload_id}>
+                  <TableCell>
+                    <IconButton onClick={() => toggleRow(upload.upload_id)}>
+                      {expandedRows[upload.upload_id] ? (
+                        <ExpandLessIcon />
+                      ) : (
+                        <ExpandMoreIcon />
+                      )}
+                    </IconButton>
+                  </TableCell>
+                  <TableCell>{upload.upload_id}</TableCell>
+                  <TableCell>{upload.filename}</TableCell>
+                  <TableCell>
+                    {new Date(upload.upload_time).toLocaleString()}
+                  </TableCell>
+                  <TableCell>{upload.detections.length} detections</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    style={{ paddingBottom: 0, paddingTop: 0 }}
+                  >
+                    <Collapse
+                      in={expandedRows[upload.upload_id]}
+                      timeout="auto"
+                      unmountOnExit
+                    >
+                      <Box sx={{ margin: 1 }}>
+                        <Typography variant="subtitle2" gutterBottom>
+                          Detection Details
+                        </Typography>
+                        <Table size="small">
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>Label</TableCell>
+                              <TableCell>Confidence</TableCell>
+                              <TableCell>Bounding Box</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {upload.detections.map((detection, index) => (
+                              <TableRow key={index}>
+                                <TableCell>{detection.label}</TableCell>
+                                <TableCell>
+                                  {(detection.confidence * 100).toFixed(2)}%
+                                </TableCell>
+                                <TableCell>
+                                  [x: {detection.bbox[0]}, y:{" "}
+                                  {detection.bbox[1]}, w:{" "}
+                                  {detection.bbox[2] - detection.bbox[0]}, h:{" "}
+                                  {detection.bbox[3] - detection.bbox[1]}]
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </Box>
+                    </Collapse>
+                  </TableCell>
+                </TableRow>
+              </>
             ))}
           </TableBody>
         </Table>
-        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
-          <Pagination count={totalPages} page={page} onChange={handlePageChange} color="primary" />
+        <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={handlePageChange}
+            color="primary"
+          />
         </Box>
       </Paper>
     </Container>

@@ -37,6 +37,9 @@ function Navbar() {
               <Button color="inherit" component={Link} to="/history">
                 History
               </Button>
+              <Button color="inherit" component={Link} to="/analytics">
+                Analytics
+              </Button>
             </>
           )}
           {user && !loading ? (

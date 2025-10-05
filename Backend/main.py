@@ -195,6 +195,84 @@ async def get_history(
         raise HTTPException(status_code=500, detail=f"Error fetching history: {str(e)}")
 
 # ---------------------------------------------------------
+# ANALYTICS ENDPOINT
+# ---------------------------------------------------------
+@app.get("/analytics")
+async def get_analytics(
+    user_id: str = Depends(verify_token),
+    start_date: str = Query(None),
+    end_date: str = Query(None)
+):
+    try:
+        with get_db() as conn:
+            cursor = conn.cursor()
+            # Total uploads
+            query = "SELECT COUNT(*) FROM uploads WHERE user_id = ?"
+            params = [user_id]
+            if start_date:
+                query += " AND upload_time >= ?"
+                params.append(start_date)
+            if end_date:
+                query += " AND upload_time <= ?"
+                params.append(end_date)
+            cursor.execute(query, params)
+            total_uploads = cursor.fetchone()[0]
+
+            # Detection counts per label
+            query = "SELECT detection_results FROM uploads WHERE user_id = ?"
+            params = [user_id]
+            if start_date:
+                query += " AND upload_time >= ?"
+                params.append(start_date)
+            if end_date:
+                query += " AND upload_time <= ?"
+                params.append(end_date)
+            cursor.execute(query, params)
+            uploads = cursor.fetchall()
+
+            label_counts = {}
+            for row in uploads:
+                detections = json.loads(row[0]) if row[0] else []
+                for detection in detections:
+                    label = detection["label"]
+                    label_counts[label] = label_counts.get(label, 0) + 1
+
+            # Daily detection trends
+            query = """
+                SELECT DATE(upload_time) as date, detection_results
+                FROM uploads
+                WHERE user_id = ?
+            """
+            params = [user_id]
+            if start_date:
+                query += " AND upload_time >= ?"
+                params.append(start_date)
+            if end_date:
+                query += " AND upload_time <= ?"
+                params.append(end_date)
+            query += " ORDER BY date"
+            cursor.execute(query, params)
+            daily_data = cursor.fetchall()
+
+            daily_trends = {}
+            for row in daily_data:
+                date = row[0]
+                detections = json.loads(row[1]) if row[1] else []
+                daily_trends[date] = daily_trends.get(date, {})
+                for detection in detections:
+                    label = detection["label"]
+                    daily_trends[date][label] = daily_trends[date].get(label, 0) + 1
+
+            return {
+                "total_uploads": total_uploads,
+                "label_counts": label_counts,
+                "daily_trends": daily_trends
+            }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching analytics: {str(e)}")
+
+# ---------------------------------------------------------
 # ROOT TEST ROUTE
 # ---------------------------------------------------------
 @app.get("/")

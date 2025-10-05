@@ -10,11 +10,11 @@ function HomePage() {
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Typography variant="h3" gutterBottom>
-        The Guardian Eye
+        SafetySnap
       </Typography>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <Typography variant="body1">
-          Welcome to The Guardian Eye, a web application designed for real-time safety monitoring.
+          Welcome to SafetySnap, a web application designed for real-time safety monitoring.
           Upload images or videos to automatically detect whether individuals are wearing Personal
           Protective Equipment (PPE) such as helmets and vests. The system provides visual results
           with overlayed bounding boxes and structured JSON metadata including labels, confidence

@@ -1,0 +1,44 @@
+/* Chart container */
+.chart-container {
+  display: flex;
+  width: 100%;
+  max-width: 800px; /* Maximum width for larger screens */
+  height: 400px; /* Fixed height to prevent infinite size */
+  margin: 0 auto;
+  padding: 16px;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Chart title */
+.chart-title {
+  margin-top: 20px;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+/* Total uploads text */
+.total-uploads {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #1976d2;
+  margin-bottom: 24px;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .chart-container {
+    height: 300px; /* smaller height for mobile */
+    padding: 8px;
+  }
+
+  .chart-title {
+    font-size: 1rem;
+  }
+
+  .total-uploads {
+    font-size: 1.25rem;
+  }
+}

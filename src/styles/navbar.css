@@ -1,0 +1,98 @@
+/* Toolbar container: space between left and right */
+.navbar-container {
+  display: flex;
+  justify-content: space-between; /* left + right sections */
+  align-items: center;
+  padding: 0 16px;
+}
+
+/* Left side: title + links */
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 24px; /* distance between title and links */
+}
+
+/* Title */
+.navbar-title {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+/* Links next to title */
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Buttons */
+.navbar-button {
+  font-size: 1rem;
+  color: white !important;
+  text-transform: none;
+  padding: 6px 12px;
+  white-space: nowrap;
+}
+
+/* Right side: profile/auth */
+.navbar-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* User section */
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Avatar */
+.navbar-avatar {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+/* Username */
+.navbar-username {
+  font-size: 1rem;
+  color: white;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .navbar-left {
+    gap: 12px;
+  }
+
+  .navbar-title {
+    font-size: 1.2rem;
+  }
+
+  .navbar-links {
+    gap: 6px;
+  }
+
+  .navbar-profile {
+    gap: 6px;
+  }
+
+  .navbar-username {
+    max-width: 70px;
+  }
+
+  .navbar-button {
+    font-size: 0.9rem;
+    padding: 4px 8px;
+  }
+}

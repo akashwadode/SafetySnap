@@ -34,7 +34,7 @@ function SignupPage() {
       <Card sx={{ minWidth: 300, maxWidth: 400, bgcolor: '#e8f5e9' }}>
         <CardContent>
           <Typography variant="h4" align="center" gutterBottom color="green">
-            Signup for The Guardian Eye
+            Signup for SafetySnap
           </Typography>
           <Box component="form" onSubmit={handleSignup} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField

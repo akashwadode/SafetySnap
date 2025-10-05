@@ -24,6 +24,7 @@ import {
   Legend,
 } from 'chart.js';
 import useUserData from '../hooks/useUserData';
+import '../styles/analytics.css';
 
 ChartJS.register(
   CategoryScale,
@@ -77,7 +78,7 @@ function AnalyticsPage() {
     fetchAnalytics();
   }, [user, startDateFilter, endDateFilter]);
 
-  // Bar chart data for label counts
+  // Bar chart data
   const barData = {
     labels: Object.keys(analytics.label_counts),
     datasets: [
@@ -91,7 +92,7 @@ function AnalyticsPage() {
     ],
   };
 
-  // Line chart data for daily trends
+  // Line chart data
   const lineData = {
     labels: Object.keys(analytics.daily_trends),
     datasets: Object.keys(analytics.label_counts).map((label, index) => ({
@@ -107,6 +108,7 @@ function AnalyticsPage() {
 
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false, // allows custom height
     plugins: {
       legend: { position: 'top' },
     },
@@ -119,8 +121,10 @@ function AnalyticsPage() {
       <Typography variant="h4" gutterBottom>
         PPE Compliance Analytics
       </Typography>
+
       <Paper sx={{ p: 4, mb: 4 }}>
-        <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
+        {/* Filters */}
+        <Box sx={{ display: 'flex', gap: 12, mb: 4, flexWrap: 'wrap' }}>
           <TextField
             label="Start Date (YYYY-MM-DD)"
             value={startDateFilter}
@@ -139,17 +143,49 @@ function AnalyticsPage() {
             Apply Filters
           </Button>
         </Box>
+
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-        <Typography variant="h6" gutterBottom>
+
+        <Typography variant="h6" className="total-uploads">
           Total Uploads: {analytics.total_uploads}
         </Typography>
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="subtitle1">Detection Counts by Label</Typography>
-          <Bar data={barData} options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: true, text: 'Detections per Label' } } }} />
+
+        {/* Bar Chart */}
+        <Box className="chart-container">
+          <Typography variant="h5" className="chart-title">
+            Detection Counts by Label
+          </Typography>
+          <Box sx={{ height: '100%' }}>
+            <Bar
+              data={barData}
+              options={{
+                ...chartOptions,
+                plugins: { 
+                  ...chartOptions.plugins, 
+                  title: { display: true, text: 'Detections per Label' } 
+                },
+              }}
+            />
+          </Box>
         </Box>
-        <Box>
-          <Typography variant="subtitle1">Daily Detection Trends</Typography>
-          <Line data={lineData} options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: true, text: 'Daily Detection Trends' } } }} />
+              
+        {/* Line Chart */}
+        <Box className="chart-container">
+          <Typography variant="h5" className="chart-title">
+            Daily Detection Trends
+          </Typography>
+          <Box sx={{ height: '100%' }}>
+            <Line
+              data={lineData}
+              options={{
+                ...chartOptions,
+                plugins: { 
+                  ...chartOptions.plugins, 
+                  title: { display: true, text: 'Daily Detection Trends' } 
+                },
+              }}
+            />
+          </Box>
         </Box>
       </Paper>
     </Container>

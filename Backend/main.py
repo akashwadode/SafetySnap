@@ -12,9 +12,7 @@ from ultralytics import YOLO
 import uuid
 import base64
 
-# ---------------------------------------------------------
-# APP INITIALIZATION
-# ---------------------------------------------------------
+
 app = FastAPI(title="The Guardian Eye")
 security = HTTPBearer()
 
@@ -46,7 +44,7 @@ init_db()
 # ---------------------------------------------------------
 # YOLO MODEL INITIALIZATION
 # ---------------------------------------------------------
-model = YOLO("yolov8n.pt")  # Replace with custom model path for PPE detection
+model = YOLO("yolov8_helmet_vest.pt")  # Replace with custom model path for PPE detection
 
 # ---------------------------------------------------------
 # AUTH VERIFICATION

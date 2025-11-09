@@ -12,11 +12,9 @@ from ultralytics import YOLO
 import uuid
 import base64
 
-
 app = FastAPI(title="The Guardian Eye")
 security = HTTPBearer()
 
-# Enable CORS for frontend (React + Vite)
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
@@ -30,25 +28,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ---------------------------------------------------------
-# FIREBASE INITIALIZATION
-# ---------------------------------------------------------
 cred = credentials.Certificate("firebase-adminsdk.json")
 firebase_admin.initialize_app(cred)
 
-# ---------------------------------------------------------
-# DATABASE INITIALIZATION
-# ---------------------------------------------------------
 init_db()
+model = YOLO("yolov8_helmet_vest.pt")
 
-# ---------------------------------------------------------
-# YOLO MODEL INITIALIZATION
-# ---------------------------------------------------------
-model = YOLO("yolov8_helmet_vest.pt")  # Replace with custom model path for PPE detection
-
-# ---------------------------------------------------------
-# AUTH VERIFICATION
-# ---------------------------------------------------------
 async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
         token = credentials.credentials
@@ -57,12 +42,8 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
-# ---------------------------------------------------------
-# UPLOAD ENDPOINT
-# ---------------------------------------------------------
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...), user_id: str = Depends(verify_token)):
-    # Validate file type
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Invalid file type. Use JPEG/PNG.")
 
@@ -79,27 +60,52 @@ async def upload_file(file: UploadFile = File(...), user_id: str = Depends(verif
     result_image_base64 = None
 
     try:
-        # Process image with YOLOv8
         detections = []
         results = model(temp_path)
+        image = cv2.imread(temp_path)
+        font = cv2.FONT_HERSHEY_SIMPLEX
+
         for result in results:
-            for box in result.boxes:
+            for i, box in enumerate(result.boxes):
+                cls_id = int(box.cls)
+                label = result.names[cls_id]
+                confidence = float(box.conf)
+                x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
+
+                if "helmet" in label.lower():
+                    color = (0, 255, 0)
+                elif "vest" in label.lower():
+                    color = (255, 165, 0)
+                else:
+                    color = (0, 0, 255)
+
+                cv2.rectangle(image, (x1, y1), (x2, y2), color, 2)
+
+                text = f"{label} ({confidence*100:.1f}%)"
+                font_scale = 0.45
+                thickness = 1
+                (text_w, text_h), _ = cv2.getTextSize(text, font, font_scale, thickness)
+
+                # Offset labels slightly to prevent overlapping
+                label_offset = 20 * i
+                y_text = max(y1 - 5 - label_offset, text_h + 5)
+                x_text = x1
+
+                cv2.rectangle(image, (x_text, y_text - text_h - 4), (x_text + text_w + 2, y_text + 2), color, -1)
+                cv2.putText(image, text, (x_text, y_text - 2), font, font_scale, (255, 255, 255), thickness, cv2.LINE_AA)
+
                 detections.append({
-                    "label": result.names[int(box.cls)],
-                    "confidence": float(box.conf),
-                    "bbox": [int(coord) for coord in box.xyxy[0].tolist()]
+                    "label": label,
+                    "confidence": confidence,
+                    "bbox": [x1, y1, x2, y2]
                 })
 
-        # Save image with bounding boxes
-        result_image = results[0].plot()
         result_path = os.path.join(temp_dir, f"result_{temp_filename}")
-        cv2.imwrite(result_path, result_image)
+        cv2.imwrite(result_path, image)
 
-        # Encode to base64
         with open(result_path, "rb") as img_file:
-            result_image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
+            result_image_base64 = base64.b64encode(img_file.read()).decode("utf-8")
 
-        # Save metadata in SQLite
         with get_db() as conn:
             cursor = conn.cursor()
             cursor.execute(
@@ -112,26 +118,19 @@ async def upload_file(file: UploadFile = File(...), user_id: str = Depends(verif
             conn.commit()
             upload_id = cursor.lastrowid
 
-        # Return detection data
-        response = {
+        return {
             "upload_id": upload_id,
             "filename": file.filename,
             "detections": detections,
             "result_image_base64": result_image_base64
         }
 
-        return response
-
     finally:
-        # Cleanup temporary files
         if os.path.exists(temp_path):
             os.remove(temp_path)
         if 'result_path' in locals() and os.path.exists(result_path):
             os.remove(result_path)
 
-# ---------------------------------------------------------
-# HISTORY ENDPOINT
-# ---------------------------------------------------------
 @app.get("/history")
 async def get_history(
     user_id: str = Depends(verify_token),
@@ -147,7 +146,6 @@ async def get_history(
             query = "SELECT id, user_id, filename, upload_time, detection_results FROM uploads WHERE user_id = ?"
             params = [user_id]
 
-            # Apply filters
             if filename:
                 query += " AND filename LIKE ?"
                 params.append(f"%{filename}%")
@@ -158,18 +156,15 @@ async def get_history(
                 query += " AND upload_time <= ?"
                 params.append(end_date)
 
-            # Count total records for pagination
             cursor.execute(f"SELECT COUNT(*) FROM ({query})", params)
             total_records = cursor.fetchone()[0]
 
-            # Apply pagination
             query += " ORDER BY upload_time DESC LIMIT ? OFFSET ?"
             params.extend([per_page, (page - 1) * per_page])
 
             cursor.execute(query, params)
             uploads = cursor.fetchall()
 
-            # Format response
             results = [
                 {
                     "upload_id": row[0],
@@ -192,9 +187,6 @@ async def get_history(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching history: {str(e)}")
 
-# ---------------------------------------------------------
-# ANALYTICS ENDPOINT
-# ---------------------------------------------------------
 @app.get("/analytics")
 async def get_analytics(
     user_id: str = Depends(verify_token),
@@ -204,7 +196,6 @@ async def get_analytics(
     try:
         with get_db() as conn:
             cursor = conn.cursor()
-            # Total uploads
             query = "SELECT COUNT(*) FROM uploads WHERE user_id = ?"
             params = [user_id]
             if start_date:
@@ -216,7 +207,6 @@ async def get_analytics(
             cursor.execute(query, params)
             total_uploads = cursor.fetchone()[0]
 
-            # Detection counts per label
             query = "SELECT detection_results FROM uploads WHERE user_id = ?"
             params = [user_id]
             if start_date:
@@ -235,7 +225,6 @@ async def get_analytics(
                     label = detection["label"]
                     label_counts[label] = label_counts.get(label, 0) + 1
 
-            # Daily detection trends
             query = """
                 SELECT DATE(upload_time) as date, detection_results
                 FROM uploads
@@ -270,9 +259,6 @@ async def get_analytics(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching analytics: {str(e)}")
 
-# ---------------------------------------------------------
-# ROOT TEST ROUTE
-# ---------------------------------------------------------
 @app.get("/")
 def root():
     return {"message": "The Guardian Eye backend is running!"}

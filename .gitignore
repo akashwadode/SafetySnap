@@ -23,5 +23,18 @@ dist-ssr
 *.sln
 *.sw?
 
-firebase-adminsdk.json
 
+# Node
+node_modules/
+dist/
+.env
+
+# Python
+__pycache__/
+venv/
+*.db
+*.log
+
+# Backend specific
+backend/temp_uploads/
+backend/firebase-adminsdk.json

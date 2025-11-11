@@ -62,7 +62,12 @@ SafetySnap/
 └── README.md
 
 ````
+# 👥 Team & Contributions
 
+| Member                  | Role                  | Contributions |
+|-------------------------|-----------------------|-------------|
+| **Akash Wadode** (Team Leader) | Backend & AI Developer | - Designed and implemented FastAPI backend.<br>- Integrated YOLOv8 model for PPE detection.<br>- Set up SQLite database for storing detection history and analytics.<br>- Configured Firebase Admin SDK for authentication.<br>- Developed Streamlit dashboard and deployed the full system.<br>- Managed project structure, documentation, and deployment pipeline. |
+| **Kushvinder Singh** (Team Member) | Frontend Developer | - Built React (Vite) frontend for image upload, history, and analytics pages.<br>- Integrated Firebase authentication with the UI.<br>- Designed responsive user interface with modern components.<br>- Connected frontend with backend APIs for real-time detection and visualization.<br>- Contributed to overall UI/UX improvements and testing. |
 ---
 
 ## 🧰 Installation & Setup

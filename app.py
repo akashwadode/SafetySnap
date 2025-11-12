@@ -7,11 +7,16 @@ os.environ["OPENCV_LOG_LEVEL"] = "ERROR"
 os.environ["FORCE_HEADLESS"] = "1"
 
 
+
+try:
+    import cv2
+except ImportError:
+    # Try to install missing system dependencies on-the-fly
+    subprocess.call([sys.executable, "-m", "pip", "install", "opencv-python-headless==4.8.1.78"])
+    import cv2
 import streamlit as st
 from ultralytics import YOLO
 import tempfile
-import cv2
-
 
 # Page setup
 st.set_page_config(page_title="SafetySnap - PPE Detection", layout="centered")

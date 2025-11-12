@@ -1,8 +1,14 @@
+# --- Prevent cv2 GUI and libGL errors in Streamlit Cloud ---
+import os
+os.environ["QT_QPA_PLATFORM"] = "offscreen"
+os.environ["OPENCV_LOG_LEVEL"] = "ERROR"
+os.environ["FORCE_HEADLESS"] = "1"
+
 import streamlit as st
 from ultralytics import YOLO
 import tempfile
-import os
 import cv2
+
 
 # Page setup
 st.set_page_config(page_title="SafetySnap - PPE Detection", layout="centered")

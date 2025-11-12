@@ -7,7 +7,7 @@ os.environ["FORCE_HEADLESS"] = "1"
 import streamlit as st
 from ultralytics import YOLO
 import tempfile
-# import cv2
+import cv2
 
 
 # Page setup

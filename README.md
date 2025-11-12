@@ -1,7 +1,17 @@
 
 # 🦺 SafetySnap – AI-Powered PPE Detection System
 
-**🔗 Live Demo:** [Streamlit App](https://akashwadode-safetysnap-app-ucmqd9.streamlit.app/)
+![Hugging Face](https://img.shields.io/badge/Deployed%20on-Hugging%20Face-blue?logo=huggingface)
+![Streamlit](https://img.shields.io/badge/Deployed%20on-Streamlit-red?logo=streamlit)
+![License: MIT](https://img.shields.io/badge/License-MIT-green)
+![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)
+
+## 🔗 Live Demos
+
+| Platform | Link |
+|-----------|------|
+| 🚀 **Hugging Face Spaces** | [View App on Hugging Face](https://huggingface.co/spaces/akashwadode/SafetySnap) |
+| ☁️ **Streamlit Cloud** | [View App on Streamlit Cloud](https://akashwadode-safetysnap-app-ucmqd9.streamlit.app/) |
 
 ---
 

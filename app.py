@@ -1,22 +1,14 @@
-# --- Prevent cv2 GUI and libGL errors in Streamlit Cloud ---
 import os
-# 🩵 Prevent OpenCV GUI / libGL.so.1 errors on Streamlit Cloud
+
+# Prevent OpenCV GUI/libGL errors
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
-os.environ["OPENCV_VIDEOIO_PRIORITY_MSMF"] = "0"
 os.environ["OPENCV_LOG_LEVEL"] = "ERROR"
 os.environ["FORCE_HEADLESS"] = "1"
 
-
-
-try:
-    import cv2
-except ImportError:
-    # Try to install missing system dependencies on-the-fly
-    subprocess.call([sys.executable, "-m", "pip", "install", "opencv-python-headless==4.8.1.78"])
-    import cv2
 import streamlit as st
 from ultralytics import YOLO
 import tempfile
+import cv2
 
 # Page setup
 st.set_page_config(page_title="SafetySnap - PPE Detection", layout="centered")

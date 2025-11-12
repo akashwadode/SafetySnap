@@ -1,8 +1,11 @@
 # --- Prevent cv2 GUI and libGL errors in Streamlit Cloud ---
 import os
+# 🩵 Prevent OpenCV GUI / libGL.so.1 errors on Streamlit Cloud
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
+os.environ["OPENCV_VIDEOIO_PRIORITY_MSMF"] = "0"
 os.environ["OPENCV_LOG_LEVEL"] = "ERROR"
 os.environ["FORCE_HEADLESS"] = "1"
+
 
 import streamlit as st
 from ultralytics import YOLO

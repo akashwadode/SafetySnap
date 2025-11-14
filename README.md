@@ -2,16 +2,19 @@
 # 🦺 SafetySnap – AI-Powered PPE Detection System
 
 ![Hugging Face](https://img.shields.io/badge/Deployed%20on-Hugging%20Face-blue?logo=huggingface)
-![Streamlit](https://img.shields.io/badge/Deployed%20on-Streamlit-red?logo=streamlit)
-![License: MIT](https://img.shields.io/badge/License-MIT-green)
 ![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)
+![YOLOv8](https://img.shields.io/badge/Model-YOLOv8-orange?logo=ai)
+![HF Space](https://img.shields.io/badge/HuggingFace-Space-yellow?logo=huggingface)
+![Computer Vision](https://img.shields.io/badge/Computer%20Vision-PPE%20Detection-brightgreen)
+
+
 
 ## 🔗 Live Demos
 
 | Platform | Link |
 |-----------|------|
 | 🚀 **Hugging Face Spaces** | [View App on Hugging Face](https://huggingface.co/spaces/akashwadode/SafetySnap) |
-| ☁️ **Streamlit Cloud** | [View App on Streamlit Cloud](https://akashwadode-safetysnap-app-ucmqd9.streamlit.app/) |
+
 
 ---
 
@@ -203,12 +206,6 @@ Or directly visit the live deployment:
 **Developed by [Akash Wadode](https://github.com/akashwadode)**
 🎓 MCA Student – Specializing in AI & Machine Learning
 💡 Passionate about creating intelligent and impactful software solutions.
-
----
-
-## 🪪 License
-
-This project is licensed under the **MIT License** – free for educational and personal use.
 
 ---
 

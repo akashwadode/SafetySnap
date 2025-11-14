@@ -58,10 +58,9 @@ The application is deployed on **Streamlit Cloud** for live usage.
 
 SafetySnap/
 │
-├── frontend/                # React + Vite UI (upload, history, analytics)
-│   ├── src/
-│   ├── public/
-│   └── package.json
+├── src/
+├── public/
+└── package.json
 │
 ├── backend/                 # FastAPI + YOLOv8 + Firebase + SQLite
 │   ├── main.py              # Core API routes (upload, history, analytics)
